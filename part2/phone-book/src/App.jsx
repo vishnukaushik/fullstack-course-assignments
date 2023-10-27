@@ -51,21 +51,28 @@ const App = () => {
 
   const addPhone = (event)=>{
     event.preventDefault();
+    console.log("Attemp 1 to add");
     const newPerson = {
       name: newContact.name,
       number: newContact.number
     }
     const person = persons.find(p=> p.name===newPerson.name)
+    console.log("Attempt to add ", person);
     if(person)
     {
       const res = window.confirm(`${newPerson.name} is already added to phonebook, replace the old number with a new one?`)
+      console.log("res: ", res);
       if(res){
         phonebookServices.update(person.id, newPerson)
         .then(data=> {
+          console.log(data)
           setPersons(persons.map(p=> p.id===data.id?data:p))
           setMessage(`Updated ${newPerson.name}`)
           setTimeout(()=>{setMessage(null)},5000)  
-        })
+        }).catch((err)=>{
+          setErrorMessage(`Failed to update ${newPerson.name}`)
+          setTimeout(()=>{setErrorMessage(null)},5000)
+      })
       }
     }
     else
@@ -75,6 +82,9 @@ const App = () => {
         setPersons(persons.concat(data))
         setMessage(`Added ${newPerson.name}`)
         setTimeout(()=>{setMessage(null)},5000)
+      }).catch(error=>{
+        setErrorMessage(error.response.data.error)
+        setTimeout(()=>setErrorMessage(null),5000)
       })
       
     }
